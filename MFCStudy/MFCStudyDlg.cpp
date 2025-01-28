@@ -7,6 +7,7 @@
 #include "MFCStudy.h"
 #include "MFCStudyDlg.h"
 #include "afxdialogex.h"
+#include "afxpropertygridctrl.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -52,6 +53,7 @@ END_MESSAGE_MAP()
 
 CMFCStudyDlg::CMFCStudyDlg(CWnd* pParent /*=nullptr*/)
 	: CDialogEx(IDD_MFCSTUDY_DIALOG, pParent)
+	, m_bInitialized(false)
 {
 	m_hIcon = AfxGetApp()->LoadIcon(IDR_MAINFRAME);
 }
@@ -99,6 +101,8 @@ BOOL CMFCStudyDlg::OnInitDialog()
 	SetIcon(m_hIcon, TRUE);			// 큰 아이콘을 설정합니다.
 	SetIcon(m_hIcon, FALSE);		// 작은 아이콘을 설정합니다.
 
+	Initialize();
+
 	// TODO: 여기에 추가 초기화 작업을 추가합니다.
 
 	return TRUE;  // 포커스를 컨트롤에 설정하지 않으면 TRUE를 반환합니다.
@@ -123,6 +127,13 @@ void CMFCStudyDlg::OnSysCommand(UINT nID, LPARAM lParam)
 
 void CMFCStudyDlg::OnPaint()
 {
+	if (!m_bInitialized)
+	{
+		DrawBackBuffer();
+		DrawMainBuffer();
+		m_bInitialized = true;
+	}
+
 	if (IsIconic())
 	{
 		CPaintDC dc(this); // 그리기를 위한 디바이스 컨텍스트입니다.
@@ -153,3 +164,83 @@ HCURSOR CMFCStudyDlg::OnQueryDragIcon()
 	return static_cast<HCURSOR>(m_hIcon);
 }
 
+void CMFCStudyDlg::Initialize()
+{
+	InitGridCtrl();
+	InitDC();
+	InitImage();
+
+	m_Image.Draw(m_BackBufDC, 0, 0);
+	CRect ClientRect;
+	GetClientRect(&ClientRect);
+	m_MainDC->BitBlt(0, 0, ClientRect.Width(), ClientRect.Height(), &m_BackBufDC, 0, 0, SRCCOPY);
+}
+
+void CMFCStudyDlg::InitImage()
+{
+	int nBitsPerPixel = 8;
+
+	if (!m_Image.IsNull())
+	{
+		m_Image.Destroy();
+	}
+
+	CRect ClientRect;
+	GetClientRect(&ClientRect);
+
+	m_Image.Create(ClientRect.Width(), ClientRect.Height(), nBitsPerPixel);
+	unsigned char* p = (unsigned char*)m_Image.GetBits();
+
+	if (nBitsPerPixel == 8)
+	{
+		static RGBQUAD rgb[256];
+		for (int i = 0; i < 256; ++i)
+		{
+			rgb[i].rgbRed = rgb[i].rgbGreen = rgb[i].rgbBlue = i;
+		}
+		m_Image.SetColorTable(0, 256, rgb);
+	}
+}
+
+void CMFCStudyDlg::InitDC()
+{
+	CRect ClientRect;
+	GetClientRect(&ClientRect);
+
+	m_MainDC = GetDC();
+	m_BackBufDC.CreateCompatibleDC(m_MainDC);
+	m_BackBufBit.CreateCompatibleBitmap(m_MainDC, ClientRect.Width(), ClientRect.Height());
+	m_BackBufDC.SelectObject(m_BackBufBit);
+}
+
+void CMFCStudyDlg::InitGridCtrl()
+{
+	auto pControl = GetControl<CMFCPropertyGridCtrl>(IDC_GRIDPROPERTY);
+
+	CMFCPropertyGridProperty* pGroup = new CMFCPropertyGridProperty(_T("General Settings"));
+	pGroup->AddSubItem(new CMFCPropertyGridProperty(_T("GoodMan"), 0, 0));
+
+	pControl->AddProperty(pGroup);
+}
+
+void CMFCStudyDlg::DrawBackBuffer()
+{
+	auto pControl = GetControl<CMFCPropertyGridCtrl>(IDC_GRIDPROPERTY);
+	CRect ControlRect;
+	pControl->GetWindowRect(&ControlRect);
+	ScreenToClient(&ControlRect);
+	
+	m_Image.Draw(m_BackBufDC, ControlRect.left, 0);
+}
+
+void CMFCStudyDlg::DrawMainBuffer()
+{
+	auto pControl = GetControl<CMFCPropertyGridCtrl>(IDC_GRIDPROPERTY);
+	CRect ControlRect;
+	pControl->GetWindowRect(&ControlRect);
+	ScreenToClient(&ControlRect);
+
+	CRect ClientRect;
+	GetClientRect(&ClientRect);
+	m_MainDC->BitBlt(0, 0, ControlRect.left, ClientRect.Height(), &m_BackBufDC, 0, 0, SRCCOPY);
+}
