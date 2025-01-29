@@ -9,39 +9,78 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="소스 파일\Resource">
+      <UniqueIdentifier>{049370c1-dae4-4f57-a59a-841de7572016}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="소스 파일\Shapes">
+      <UniqueIdentifier>{fd7f386e-4b40-4d6e-9293-32a2763b07ba}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="소스 파일\Client">
+      <UniqueIdentifier>{add95362-23f3-4e4c-9956-54d878b6c311}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="소스 파일\Util">
+      <UniqueIdentifier>{0ad0fb04-630b-4f1d-947a-67103548b3ed}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="framework.h">
-      <Filter>소스 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="MFCStudy.h">
-      <Filter>소스 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="MFCStudyDlg.h">
-      <Filter>소스 파일</Filter>
+      <Filter>소스 파일\Resource</Filter>
     </ClInclude>
     <ClInclude Include="pch.h">
-      <Filter>소스 파일</Filter>
+      <Filter>소스 파일\Resource</Filter>
     </ClInclude>
     <ClInclude Include="Resource.h">
-      <Filter>소스 파일</Filter>
+      <Filter>소스 파일\Resource</Filter>
     </ClInclude>
     <ClInclude Include="targetver.h">
-      <Filter>소스 파일</Filter>
+      <Filter>소스 파일\Resource</Filter>
+    </ClInclude>
+    <ClInclude Include="CShapes.h">
+      <Filter>소스 파일\Shapes</Filter>
+    </ClInclude>
+    <ClInclude Include="CShape.h">
+      <Filter>소스 파일\Shapes</Filter>
+    </ClInclude>
+    <ClInclude Include="CCircle.h">
+      <Filter>소스 파일\Shapes</Filter>
+    </ClInclude>
+    <ClInclude Include="CCurve.h">
+      <Filter>소스 파일\Shapes</Filter>
+    </ClInclude>
+    <ClInclude Include="MFCStudyDlg.h">
+      <Filter>소스 파일\Client</Filter>
+    </ClInclude>
+    <ClInclude Include="MFCStudy.h">
+      <Filter>소스 파일\Client</Filter>
     </ClInclude>
     <ClInclude Include="MathLib.h">
-      <Filter>소스 파일</Filter>
+      <Filter>소스 파일\Util</Filter>
+    </ClInclude>
+    <ClInclude Include="Common.h">
+      <Filter>소스 파일\Util</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="pch.cpp">
+      <Filter>소스 파일\Resource</Filter>
+    </ClCompile>
+    <ClCompile Include="CShapes.cpp">
+      <Filter>소스 파일\Shapes</Filter>
+    </ClCompile>
+    <ClCompile Include="CShape.cpp">
+      <Filter>소스 파일\Shapes</Filter>
+    </ClCompile>
+    <ClCompile Include="CCircle.cpp">
+      <Filter>소스 파일\Shapes</Filter>
+    </ClCompile>
+    <ClCompile Include="CCurve.cpp">
+      <Filter>소스 파일\Shapes</Filter>
+    </ClCompile>
     <ClCompile Include="MFCStudy.cpp">
-      <Filter>소스 파일</Filter>
+      <Filter>소스 파일\Client</Filter>
     </ClCompile>
     <ClCompile Include="MFCStudyDlg.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="pch.cpp">
-      <Filter>소스 파일</Filter>
+      <Filter>소스 파일\Client</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

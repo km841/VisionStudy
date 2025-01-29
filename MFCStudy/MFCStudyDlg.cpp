@@ -8,6 +8,7 @@
 #include "MFCStudyDlg.h"
 #include "afxdialogex.h"
 #include "afxpropertygridctrl.h"
+#include "CShapes.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -54,8 +55,17 @@ END_MESSAGE_MAP()
 CMFCStudyDlg::CMFCStudyDlg(CWnd* pParent /*=nullptr*/)
 	: CDialogEx(IDD_MFCSTUDY_DIALOG, pParent)
 	, m_bInitialized(false)
+	, m_pShapes(nullptr)
+	, m_MainDC(nullptr)
+	, m_eMode(EClickMode::Create)
 {
 	m_hIcon = AfxGetApp()->LoadIcon(IDR_MAINFRAME);
+}
+
+CMFCStudyDlg::~CMFCStudyDlg()
+{
+	if (m_pShapes)
+		delete m_pShapes;
 }
 
 void CMFCStudyDlg::DoDataExchange(CDataExchange* pDX)
@@ -67,6 +77,9 @@ BEGIN_MESSAGE_MAP(CMFCStudyDlg, CDialogEx)
 	ON_WM_SYSCOMMAND()
 	ON_WM_PAINT()
 	ON_WM_QUERYDRAGICON()
+	ON_WM_MOUSEMOVE()
+	ON_WM_LBUTTONDOWN()
+	ON_WM_LBUTTONUP()
 END_MESSAGE_MAP()
 
 
@@ -164,16 +177,62 @@ HCURSOR CMFCStudyDlg::OnQueryDragIcon()
 	return static_cast<HCURSOR>(m_hIcon);
 }
 
+void CMFCStudyDlg::OnMouseMove(UINT nFlags, CPoint point)
+{
+	m_MousePos = CVector2::CPointToVector2(point);
+
+	CShape* pClickedShape = m_pShapes->GetClickedShape();
+	if (pClickedShape != nullptr)
+	{
+		CVector2 PrevPos = pClickedShape->GetPos();
+		if (PrevPos != m_MousePos)
+		{
+			pClickedShape->SetPos(m_MousePos);
+			pClickedShape->SetOverlapped(true);
+			Refresh();
+			m_eMode = EClickMode::Move;
+		}
+	}
+}
+
+void CMFCStudyDlg::OnLButtonDown(UINT nFlags, CPoint point)
+{
+	m_pShapes->CheckOverlap(CVector2::CPointToVector2(point));
+}
+
+void CMFCStudyDlg::OnLButtonUp(UINT nFlags, CPoint point)
+{
+	CShape* pClickedShape = m_pShapes->GetClickedShape();
+	if (pClickedShape)
+	{
+		pClickedShape->SetOverlapped(false);
+		m_pShapes->RemoveClickedShape();
+		Refresh();
+	}
+	if (m_eMode == EClickMode::Move)
+	{
+		m_eMode = EClickMode::Create;
+		return;
+	}
+
+	CShapeInfo ShapeInfo;
+	ShapeInfo.Pos = CVector2::CPointToVector2(point);
+	ShapeInfo.fThickness = 8.0f;
+	ShapeInfo.eShapeTypes = EShapeTypes::Circle;
+	m_pShapes->AddShape<CCircle>(ShapeInfo);
+
+	Refresh();
+}
+
 void CMFCStudyDlg::Initialize()
 {
-	InitGridCtrl();
 	InitDC();
+	InitGridCtrl();
 	InitImage();
 
-	m_Image.Draw(m_BackBufDC, 0, 0);
-	CRect ClientRect;
-	GetClientRect(&ClientRect);
-	m_MainDC->BitBlt(0, 0, ClientRect.Width(), ClientRect.Height(), &m_BackBufDC, 0, 0, SRCCOPY);
+	m_pShapes = new CShapes(&m_Image);
+
+	DrawScreen();
 }
 
 void CMFCStudyDlg::InitImage()
@@ -200,6 +259,8 @@ void CMFCStudyDlg::InitImage()
 		}
 		m_Image.SetColorTable(0, 256, rgb);
 	}
+
+	ClearImage();
 }
 
 void CMFCStudyDlg::InitDC()
@@ -215,22 +276,25 @@ void CMFCStudyDlg::InitDC()
 
 void CMFCStudyDlg::InitGridCtrl()
 {
+	HDITEM Item;
+	Item.mask = HDI_WIDTH;
+	Item.cxy = 100;
+
 	auto pControl = GetControl<CMFCPropertyGridCtrl>(IDC_GRIDPROPERTY);
+	pControl->GetHeaderCtrl().SetItem(0, &Item);
 
-	CMFCPropertyGridProperty* pGroup = new CMFCPropertyGridProperty(_T("General Settings"));
-	pGroup->AddSubItem(new CMFCPropertyGridProperty(_T("GoodMan"), 0, 0));
-
+	CMFCPropertyGridProperty* pGroup = new CMFCPropertyGridProperty(_T("Shapes"));
 	pControl->AddProperty(pGroup);
+}
+
+void CMFCStudyDlg::DrawShapesInBackBuffer()
+{
+	m_pShapes->Draw();
 }
 
 void CMFCStudyDlg::DrawBackBuffer()
 {
-	auto pControl = GetControl<CMFCPropertyGridCtrl>(IDC_GRIDPROPERTY);
-	CRect ControlRect;
-	pControl->GetWindowRect(&ControlRect);
-	ScreenToClient(&ControlRect);
-	
-	m_Image.Draw(m_BackBufDC, ControlRect.left, 0);
+	m_Image.Draw(m_BackBufDC, 0, 0);
 }
 
 void CMFCStudyDlg::DrawMainBuffer()
@@ -243,4 +307,50 @@ void CMFCStudyDlg::DrawMainBuffer()
 	CRect ClientRect;
 	GetClientRect(&ClientRect);
 	m_MainDC->BitBlt(0, 0, ControlRect.left, ClientRect.Height(), &m_BackBufDC, 0, 0, SRCCOPY);
+}
+
+void CMFCStudyDlg::DrawScreen()
+{
+	DrawShapesInBackBuffer();
+	DrawBackBuffer();
+	DrawMainBuffer();
+}
+
+void CMFCStudyDlg::Refresh()
+{
+	RenewGridCtrl();
+	ClearImage();
+	DrawScreen();
+}
+
+void CMFCStudyDlg::ClearImage()
+{
+	unsigned char* p = (unsigned char*)m_Image.GetBits();
+	for (int y = 0; y < m_Image.GetHeight(); ++y)
+	{
+		memset(p + (y * m_Image.GetPitch()), 0xff, m_Image.GetWidth());
+	}
+}
+
+void CMFCStudyDlg::RenewGridCtrl()
+{
+	auto pControl = GetControl<CMFCPropertyGridCtrl>(IDC_GRIDPROPERTY);
+	auto Shapes = m_pShapes->GetShapes();
+
+	pControl->RemoveAll();
+	CMFCPropertyGridProperty* pGroup = new CMFCPropertyGridProperty(_T("Shapes"));
+	for (int i = 0; i < Shapes.size(); ++i)
+	{
+		CVector2 Pos = Shapes[i]->GetPos();
+		std::wstring OutputStr = Pos.ToString();
+
+		std::wstring PropertyName;
+		{
+			std::wstring Name = Shapes[i]->GetName();
+			PropertyName = Name + std::to_wstring(i);
+		}
+		pGroup->AddSubItem(new CMFCPropertyGridProperty(PropertyName.c_str(), OutputStr.c_str()));
+	}
+
+	pControl->AddProperty(pGroup);
 }

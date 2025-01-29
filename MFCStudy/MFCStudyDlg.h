@@ -1,11 +1,20 @@
 ﻿#pragma once
-#include "MathLib.h"
+#include "Common.h"
+class CShapes;
+
+enum class EClickMode
+{
+	Create,
+	Move,
+};
 
 class CMFCStudyDlg : public CDialogEx
 {
 // 생성입니다.
+
 public:
 	CMFCStudyDlg(CWnd* pParent = nullptr);	// 표준 생성자입니다.
+	virtual ~CMFCStudyDlg();
 
 // 대화 상자 데이터입니다.
 #ifdef AFX_DESIGN_TIME
@@ -22,15 +31,24 @@ protected:
 	afx_msg void OnPaint();
 	afx_msg HCURSOR OnQueryDragIcon();
 
+	afx_msg void OnMouseMove(UINT nFlags, CPoint point);
+	afx_msg void OnLButtonDown(UINT nFlags, CPoint point);
+	afx_msg void OnLButtonUp(UINT nFlags, CPoint point);
+
 	void Initialize();
 	void InitImage();
 	void InitDC();
 	void InitGridCtrl();
 
+	void DrawShapesInBackBuffer();
 	void DrawBackBuffer();
 	void DrawMainBuffer();
+	void DrawScreen();
+	void Refresh();
 
-	
+	void ClearImage();
+	void RenewGridCtrl();
+
 	template<typename T>
 	T* GetControl(int nID);
 
@@ -38,12 +56,19 @@ protected:
 public:
 	HICON m_hIcon;
 	CImage m_Image;
+
+	// Double Buffering
 	CDC* m_MainDC;
 	CDC m_BackBufDC;
 	CBitmap  m_BackBufBit;
-	CVector2 m_MousePos;
 
+	// Helper Classes
+	CVector2 m_MousePos;
+	CShapes* m_pShapes;
+
+	// bool & Enum
 	bool m_bInitialized;
+	EClickMode m_eMode;
 };
 
 template<typename T>

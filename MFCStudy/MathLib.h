@@ -1,5 +1,6 @@
 #pragma once
-
+#include <string>
+#include <sstream>
 
 struct CVector2
 {
@@ -13,6 +14,13 @@ struct CVector2
 	CVector2()
 		: x(0.0f), y(0.0f)
 	{}
+
+	std::wstring ToString()
+	{
+		std::wstringstream Stream;
+		Stream << x << TEXT(", ") <<  y;
+		return Stream.str();
+	}
 
 	bool operator==(const CVector2& other)
 	{
@@ -53,7 +61,7 @@ struct CVector2
 		return CVector2(x - other.x, y - other.y);
 	}
 
-	float Length() const
+	double Length() const
 	{
 		return sqrt((static_cast<double>(x * x + y * y)));
 	}
