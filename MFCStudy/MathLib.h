@@ -22,6 +22,15 @@ struct CVector2
 		return Stream.str();
 	}
 
+	bool operator<(const CVector2& other) const
+	{
+		if (x < other.x && y < other.y)
+			return true;
+		else
+			return false;
+		
+	}
+
 	bool operator==(const CVector2& other)
 	{
 		return (other.x == x) && (other.y == y);
@@ -69,5 +78,13 @@ struct CVector2
 	static CVector2 CPointToVector2(const CPoint& cp)
 	{
 		return CVector2((float)cp.x, (float)cp.y);
+	}
+
+	static CVector2 Lerp(const CVector2& V1, const CVector2& V2, float t)
+	{
+		CVector2 Ret;
+		Ret.x = (1 - t) * V1.x + t * V2.x;
+		Ret.y = (1 - t) * V1.y + t * V2.y;
+		return Ret;
 	}
 };

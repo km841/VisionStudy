@@ -1,6 +1,8 @@
 ﻿#pragma once
 #include "Common.h"
 class CShapes;
+class CCurve;
+class CCircle;
 
 enum class EClickMode
 {
@@ -46,8 +48,13 @@ protected:
 	void DrawScreen();
 	void Refresh();
 
+	bool IsOverTheLimit(CPoint Point);
+
 	void ClearImage();
 	void RenewGridCtrl();
+
+	CCurve* CreateCurve(const CVector2& Pos, float fThickness);
+	CCircle* CreateCircle(const CVector2& Pos, float fRadius);
 
 	template<typename T>
 	T* GetControl(int nID);

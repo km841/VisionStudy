@@ -3,6 +3,7 @@
 #include <vector>
 #include <string>
 #include <assert.h>
+#include <algorithm>
 
 static void AssertEx(bool bExpression, const std::wstring& Message)
 {

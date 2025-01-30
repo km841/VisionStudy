@@ -34,6 +34,10 @@ public:
 	const std::vector<CShape*>& GetShapes() const { return m_vecShapes; }
 	CShape* GetClickedShape() { return m_pClickedShape; }
 	void RemoveClickedShape() { m_pClickedShape = nullptr; }
+	int GetShapesCount() { return static_cast<int>(m_vecShapes.size()); }
+	bool IsExistsCurve();
+
+	void RemoveCurve();
 
 	template<typename T>
 	T* AddShape(const CShapeInfo& ShapeInfo);

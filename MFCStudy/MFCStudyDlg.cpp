@@ -88,7 +88,7 @@ END_MESSAGE_MAP()
 BOOL CMFCStudyDlg::OnInitDialog()
 {
 	CDialogEx::OnInitDialog();
-
+	ModifyStyle(WS_THICKFRAME, 0);
 	// 시스템 메뉴에 "정보..." 메뉴 항목을 추가합니다.
 
 	// IDM_ABOUTBOX는 시스템 명령 범위에 있어야 합니다.
@@ -187,8 +187,17 @@ void CMFCStudyDlg::OnMouseMove(UINT nFlags, CPoint point)
 		CVector2 PrevPos = pClickedShape->GetPos();
 		if (PrevPos != m_MousePos)
 		{
+			if (IsOverTheLimit(point))
+				return;
+
 			pClickedShape->SetPos(m_MousePos);
 			pClickedShape->SetOverlapped(true);
+
+			if (m_pShapes->GetShapesCount() >= 2)
+			{
+				CreateCurve(m_MousePos, 6.0f);
+			}
+
 			Refresh();
 			m_eMode = EClickMode::Move;
 		}
@@ -209,17 +218,22 @@ void CMFCStudyDlg::OnLButtonUp(UINT nFlags, CPoint point)
 		m_pShapes->RemoveClickedShape();
 		Refresh();
 	}
+
 	if (m_eMode == EClickMode::Move)
 	{
 		m_eMode = EClickMode::Create;
 		return;
 	}
 
-	CShapeInfo ShapeInfo;
-	ShapeInfo.Pos = CVector2::CPointToVector2(point);
-	ShapeInfo.fThickness = 8.0f;
-	ShapeInfo.eShapeTypes = EShapeTypes::Circle;
-	m_pShapes->AddShape<CCircle>(ShapeInfo);
+	if (!IsOverTheLimit(point))
+	{
+		CreateCircle(CVector2::CPointToVector2(point), 6.0f);
+	}
+
+	if (m_pShapes->GetShapesCount() >= 2)
+	{
+		CreateCurve(m_MousePos, 6.0f);
+	}
 
 	Refresh();
 }
@@ -284,6 +298,13 @@ void CMFCStudyDlg::InitGridCtrl()
 	pControl->GetHeaderCtrl().SetItem(0, &Item);
 
 	CMFCPropertyGridProperty* pGroup = new CMFCPropertyGridProperty(_T("Shapes"));
+
+	CMFCPropertyGridProperty* pCircles = new CMFCPropertyGridProperty(_T("Circles"));
+	CMFCPropertyGridProperty* pCurves = new CMFCPropertyGridProperty(_T("Curves"));
+
+	pGroup->AddSubItem(pCircles);
+	pGroup->AddSubItem(pCurves);
+
 	pControl->AddProperty(pGroup);
 }
 
@@ -323,8 +344,23 @@ void CMFCStudyDlg::Refresh()
 	DrawScreen();
 }
 
+bool CMFCStudyDlg::IsOverTheLimit(CPoint Point)
+{
+	auto pControl = GetControl<CMFCPropertyGridCtrl>(IDC_GRIDPROPERTY);
+	CRect ControlRect;
+	pControl->GetWindowRect(&ControlRect);
+	ScreenToClient(&ControlRect);
+
+	if (ControlRect.left < Point.x)
+		return true;
+
+	return false;
+}
+
 void CMFCStudyDlg::ClearImage()
 {
+	if (m_Image.IsNull())
+		return;
 	unsigned char* p = (unsigned char*)m_Image.GetBits();
 	for (int y = 0; y < m_Image.GetHeight(); ++y)
 	{
@@ -339,18 +375,79 @@ void CMFCStudyDlg::RenewGridCtrl()
 
 	pControl->RemoveAll();
 	CMFCPropertyGridProperty* pGroup = new CMFCPropertyGridProperty(_T("Shapes"));
+
+	std::vector<CShape*> Circles;
+	std::vector<CShape*> Curves;
+
+	CMFCPropertyGridProperty* pCircles = new CMFCPropertyGridProperty(_T("Circles"));
+	CMFCPropertyGridProperty* pCurves = new CMFCPropertyGridProperty(_T("Curves"));
+
+	pGroup->AddSubItem(pCircles);
+	pGroup->AddSubItem(pCurves);
+
+
 	for (int i = 0; i < Shapes.size(); ++i)
 	{
-		CVector2 Pos = Shapes[i]->GetPos();
+		if (Shapes[i]->GetName() == _T("Circle"))
+			Circles.push_back(Shapes[i]);
+		else if (Shapes[i]->GetName() == _T("Curve"))
+			Curves.push_back(Shapes[i]);
+	}
+
+	for (int i = 0; i < Circles.size(); ++i)
+	{
+		CVector2 Pos = Circles[i]->GetPos();
 		std::wstring OutputStr = Pos.ToString();
 
 		std::wstring PropertyName;
 		{
-			std::wstring Name = Shapes[i]->GetName();
+			std::wstring Name = Circles[i]->GetName();
 			PropertyName = Name + std::to_wstring(i);
 		}
-		pGroup->AddSubItem(new CMFCPropertyGridProperty(PropertyName.c_str(), OutputStr.c_str()));
+		pCircles->AddSubItem(new CMFCPropertyGridProperty(PropertyName.c_str(), OutputStr.c_str()));
 	}
 
+	for (int i = 0; i < Curves.size(); ++i)
+	{
+		CVector2 Pos = Curves[i]->GetPos();
+		std::wstring OutputStr = Pos.ToString();
+
+		std::wstring PropertyName;
+		{
+			std::wstring Name = Curves[i]->GetName();
+			PropertyName = Name + std::to_wstring(i);
+		}
+		pCurves->AddSubItem(new CMFCPropertyGridProperty(PropertyName.c_str(), OutputStr.c_str()));
+	}
+
+
 	pControl->AddProperty(pGroup);
+}
+
+CCurve* CMFCStudyDlg::CreateCurve(const CVector2& Pos, float fThickness)
+{
+	if (m_pShapes->IsExistsCurve())
+		m_pShapes->RemoveCurve();
+
+	CShapeInfo ShapeInfo;
+	ShapeInfo.Pos = Pos;
+	ShapeInfo.fThickness = fThickness;
+	ShapeInfo.eShapeTypes = EShapeTypes::Curve;
+
+	const std::vector<CShape*>& Shapes = m_pShapes->GetShapes();
+	for (int i = 0; i < Shapes.size(); ++i)
+	{
+		ShapeInfo.ControlPoints.push_back(Shapes[i]->GetPos());
+	}
+
+	return m_pShapes->AddShape<CCurve>(ShapeInfo);
+}
+
+CCircle* CMFCStudyDlg::CreateCircle(const CVector2& Pos, float fRadius)
+{
+	CShapeInfo ShapeInfo;
+	ShapeInfo.Pos = Pos;
+	ShapeInfo.fThickness = fRadius;
+	ShapeInfo.eShapeTypes = EShapeTypes::Circle;
+	return m_pShapes->AddShape<CCircle>(ShapeInfo);
 }

@@ -49,6 +49,31 @@ bool CShapes::CheckOverlap(CVector2 MousePos)
 	return bIsOverlapped;
 }
 
+bool CShapes::IsExistsCurve()
+{
+	for (int i = 0; i < m_vecShapes.size(); ++i)
+	{
+		if (m_vecShapes[i]->GetName() == _T("Curve"))
+			return true;
+	}
+
+	return false;
+}
+
+void CShapes::RemoveCurve()
+{
+	std::vector<CShape*>::iterator Iter = m_vecShapes.begin();
+	for (; Iter != m_vecShapes.end(); ++Iter)
+	{
+		if ((*Iter)->GetName() == _T("Curve"))
+		{
+			delete *Iter;
+			Iter = m_vecShapes.erase(Iter);
+			break;
+		}
+	}
+}
+
 CCircle* CShapes::CreateCircle(CVector2 CenterPos, float fRadius)
 {
 	CCircle* pCircle = new CCircle(CenterPos, fRadius);
@@ -57,6 +82,12 @@ CCircle* CShapes::CreateCircle(CVector2 CenterPos, float fRadius)
 
 CCurve* CShapes::CreateCurve(const std::vector<CVector2>& ControlPoints, float fThickness)
 {
+	if (IsExistsCurve())
+	{
+		AssertEx(false, _T("CShapes::CreateCurve(const std::vector<CVector2>& ControlPoints, float fThickness) -> 이미 Curve가 존재합니다!"));
+		return nullptr;
+	}
+
 	CCurve* pCurve = new CCurve(ControlPoints, fThickness);
 	return pCurve;
 }

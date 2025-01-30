@@ -14,9 +14,11 @@ public:
     virtual bool Save(const std::wstring& FileName);
     virtual bool Load(const std::wstring& FileName);
 
+protected:
+    CVector2 DeCasteljau(float fWeight);
+
 private:
-    CVector2 m_StartPoint;
-    CVector2 m_EndPoint;
+    float m_fThickness;
     std::vector<CVector2> m_ControlPoints;
 };
 
