@@ -32,3 +32,4 @@
 ![image](https://github.com/user-attachments/assets/2a25ae23-611a-4951-a326-c05a841c9724)</br>
 - CShapes::Draw(...) 함수에서는 점이 커브에 가리지 않도록 그리는 순서를 변경</br>
 ![image](https://github.com/user-attachments/assets/904758dc-f84c-4cc2-aeaa-6e2659b7f540)</br>
+![ezgif com-video-to-gif-converter](https://github.com/user-attachments/assets/61f0fc2e-b672-4e54-8cd6-c98f388a2568)</br>
