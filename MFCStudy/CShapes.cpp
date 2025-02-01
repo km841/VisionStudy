@@ -4,6 +4,7 @@
 CShapes::CShapes(CImage* InImage)
 	: m_Image(InImage)
 	, m_pClickedShape(nullptr)
+	, m_pCurve(nullptr)
 {
 }
 
@@ -23,9 +24,13 @@ CShapes::~CShapes()
 
 void CShapes::Draw()
 {
+	if (m_pCurve)
+		m_pCurve->Draw(m_Image);
+
 	for (int i = 0; i < m_vecShapes.size(); ++i)
 	{
-		m_vecShapes[i]->Draw(m_Image);
+		if (m_vecShapes[i] != m_pCurve)
+			m_vecShapes[i]->Draw(m_Image);
 	}
 }
 
@@ -51,13 +56,13 @@ bool CShapes::CheckOverlap(CVector2 MousePos)
 
 bool CShapes::IsExistsCurve()
 {
-	for (int i = 0; i < m_vecShapes.size(); ++i)
-	{
-		if (m_vecShapes[i]->GetName() == _T("Curve"))
-			return true;
-	}
+	//for (int i = 0; i < m_vecShapes.size(); ++i)
+	//{
+	//	if (m_vecShapes[i]->GetName() == _T("Curve"))
+	//		return true;
+	//}
 
-	return false;
+	return m_pCurve != nullptr;
 }
 
 void CShapes::RemoveCurve()
@@ -65,13 +70,15 @@ void CShapes::RemoveCurve()
 	std::vector<CShape*>::iterator Iter = m_vecShapes.begin();
 	for (; Iter != m_vecShapes.end(); ++Iter)
 	{
-		if ((*Iter)->GetName() == _T("Curve"))
+		if ((*Iter) == m_pCurve)
 		{
 			delete *Iter;
 			Iter = m_vecShapes.erase(Iter);
 			break;
 		}
 	}
+
+	m_pCurve = nullptr;
 }
 
 CCircle* CShapes::CreateCircle(CVector2 CenterPos, float fRadius)

@@ -4,6 +4,8 @@ class CShapes;
 class CCurve;
 class CCircle;
 
+#define THICKNESS 6.0f
+
 enum class EClickMode
 {
 	Create,
@@ -54,6 +56,7 @@ protected:
 	void RenewGridCtrl();
 
 	CCurve* CreateCurve(const CVector2& Pos, float fThickness);
+	CCurve* RedefineCurve(float fThickness);
 	CCircle* CreateCircle(const CVector2& Pos, float fRadius);
 
 	template<typename T>

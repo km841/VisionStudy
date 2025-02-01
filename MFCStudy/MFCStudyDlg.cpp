@@ -195,7 +195,10 @@ void CMFCStudyDlg::OnMouseMove(UINT nFlags, CPoint point)
 
 			if (m_pShapes->GetShapesCount() >= 2)
 			{
-				CreateCurve(m_MousePos, 6.0f);
+				if (m_pShapes->IsExistsCurve())
+					RedefineCurve(THICKNESS);
+				else
+					CreateCurve(m_MousePos, THICKNESS);
 			}
 
 			Refresh();
@@ -232,7 +235,10 @@ void CMFCStudyDlg::OnLButtonUp(UINT nFlags, CPoint point)
 
 	if (m_pShapes->GetShapesCount() >= 2)
 	{
-		CreateCurve(m_MousePos, 6.0f);
+		if (m_pShapes->IsExistsCurve())
+			RedefineCurve(THICKNESS);
+		else
+			CreateCurve(m_MousePos, THICKNESS);
 	}
 
 	Refresh();
@@ -385,50 +391,36 @@ void CMFCStudyDlg::RenewGridCtrl()
 	pGroup->AddSubItem(pCircles);
 	pGroup->AddSubItem(pCurves);
 
+	int nCircleCount = 0;
+	int nCurveCount = 0;
 
 	for (int i = 0; i < Shapes.size(); ++i)
 	{
-		if (Shapes[i]->GetName() == _T("Circle"))
-			Circles.push_back(Shapes[i]);
-		else if (Shapes[i]->GetName() == _T("Curve"))
-			Curves.push_back(Shapes[i]);
-	}
-
-	for (int i = 0; i < Circles.size(); ++i)
-	{
-		CVector2 Pos = Circles[i]->GetPos();
+		CVector2 Pos = Shapes[i]->GetPos();
 		std::wstring OutputStr = Pos.ToString();
 
 		std::wstring PropertyName;
 		{
-			std::wstring Name = Circles[i]->GetName();
-			PropertyName = Name + std::to_wstring(i);
+			std::wstring Name = Shapes[i]->GetName();
+
+			if (Name == _T("Circle"))
+			{
+				PropertyName = Name + std::to_wstring(nCircleCount++);
+				pCircles->AddSubItem(new CMFCPropertyGridProperty(PropertyName.c_str(), OutputStr.c_str()));
+			}
+			else if (Name == _T("Curve"))
+			{
+				PropertyName = Name + std::to_wstring(nCurveCount++);
+				pCurves->AddSubItem(new CMFCPropertyGridProperty(PropertyName.c_str(), OutputStr.c_str()));
+			}
 		}
-		pCircles->AddSubItem(new CMFCPropertyGridProperty(PropertyName.c_str(), OutputStr.c_str()));
 	}
-
-	for (int i = 0; i < Curves.size(); ++i)
-	{
-		CVector2 Pos = Curves[i]->GetPos();
-		std::wstring OutputStr = Pos.ToString();
-
-		std::wstring PropertyName;
-		{
-			std::wstring Name = Curves[i]->GetName();
-			PropertyName = Name + std::to_wstring(i);
-		}
-		pCurves->AddSubItem(new CMFCPropertyGridProperty(PropertyName.c_str(), OutputStr.c_str()));
-	}
-
 
 	pControl->AddProperty(pGroup);
 }
 
 CCurve* CMFCStudyDlg::CreateCurve(const CVector2& Pos, float fThickness)
 {
-	if (m_pShapes->IsExistsCurve())
-		m_pShapes->RemoveCurve();
-
 	CShapeInfo ShapeInfo;
 	ShapeInfo.Pos = Pos;
 	ShapeInfo.fThickness = fThickness;
@@ -441,6 +433,23 @@ CCurve* CMFCStudyDlg::CreateCurve(const CVector2& Pos, float fThickness)
 	}
 
 	return m_pShapes->AddShape<CCurve>(ShapeInfo);
+}
+
+CCurve* CMFCStudyDlg::RedefineCurve(float fThickness)
+{
+	CCurve* pCurve = m_pShapes->GetCurve();
+	AssertEx(pCurve != nullptr, _T("CMFCStudyDlg::RedefineCurve(float fThickness) -> Curve가 존재하지 않습니다!"));
+
+	std::vector<CVector2> RedefinePoints;
+	const std::vector<CShape*>& Shapes = m_pShapes->GetShapes();
+	for (int i = 0; i < Shapes.size(); ++i)
+	{
+		if (Shapes[i] != pCurve)
+			RedefinePoints.push_back(Shapes[i]->GetPos());
+	}
+	pCurve->Redefine(RedefinePoints, fThickness);
+
+	return pCurve;
 }
 
 CCircle* CMFCStudyDlg::CreateCircle(const CVector2& Pos, float fRadius)

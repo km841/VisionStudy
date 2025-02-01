@@ -8,6 +8,12 @@ CCurve::CCurve(const std::vector<CVector2>& ControlPoints, float fThickness)
 	m_ControlPoints = ControlPoints;
 }
 
+void CCurve::Redefine(const std::vector<CVector2>& ControlPoints, float fThickness)
+{
+	m_ControlPoints = ControlPoints;
+	m_fThickness = fThickness;
+}
+
 std::wstring CCurve::GetName() const
 {
 	return TEXT("Curve");
@@ -38,7 +44,7 @@ void CCurve::Draw(CImage* InImage)
 
 				if (fDist < m_fThickness * m_fThickness)
 				{
-					p[y * nPitch + x] = 0x80;
+					p[y * nPitch + x] = 0xDD;
 				}
 			}
 		}
@@ -58,7 +64,7 @@ bool CCurve::Load(const std::wstring& FileName)
 
 CVector2 CCurve::DeCasteljau(float fWeight)
 {
-	int nCount = m_ControlPoints.size();
+	int nCount = static_cast<int>(m_ControlPoints.size());
 	std::vector<CVector2> Temp = m_ControlPoints;
 
 	for (int r = 1; r < nCount; ++r) {

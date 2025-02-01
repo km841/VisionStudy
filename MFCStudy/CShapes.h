@@ -33,6 +33,7 @@ public:
 
 	const std::vector<CShape*>& GetShapes() const { return m_vecShapes; }
 	CShape* GetClickedShape() { return m_pClickedShape; }
+	CCurve* GetCurve() { return m_pCurve; }
 	void RemoveClickedShape() { m_pClickedShape = nullptr; }
 	int GetShapesCount() { return static_cast<int>(m_vecShapes.size()); }
 	bool IsExistsCurve();
@@ -48,6 +49,7 @@ private:
 
 private:
 	CImage* m_Image;
+	CCurve* m_pCurve;
 	CShape* m_pClickedShape;
 	std::vector<CShape*> m_vecShapes;
 };
@@ -66,6 +68,7 @@ inline T* CShapes::AddShape(const CShapeInfo& ShapeInfo)
 
 	case EShapeTypes::Curve:
 		pShape = CreateCurve(ShapeInfo.ControlPoints, ShapeInfo.fThickness);
+		m_pCurve = static_cast<CCurve*>(pShape);
 		break;
 	}
 	

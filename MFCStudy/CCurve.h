@@ -8,6 +8,7 @@ class CCurve :
 public:
     CCurve(const std::vector<CVector2>& ControlPoints, float fThickness);
 
+    void Redefine(const std::vector<CVector2>& ControlPoints, float fThickness);
 public:
     virtual std::wstring GetName() const;
     virtual void Draw(CImage* InImage);
