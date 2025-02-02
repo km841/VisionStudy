@@ -45,15 +45,14 @@ void CHmGridProperty::OnClickName(CPoint point)
 		{
 			pShapes->SetGridCtrlClickShape(nullptr);
 			pPrevShape = nullptr;
-			goto Skip;
 		}
 		
-		if (pShape->GetShapeType() == EShapeType::Circle)
+		else if (pShape->GetShapeType() == EShapeType::Circle)
+		{
 			pShapes->SetGridCtrlClickShape(static_cast<CCircle*>(pShape));
+			pPrevShape = pShape;
+		}
 
-		pPrevShape = pShape;
-
-Skip:
 		m_pDialog->Refresh();
 	}
 
