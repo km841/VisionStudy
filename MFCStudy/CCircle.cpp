@@ -31,6 +31,9 @@ void CCircle::GridCtrlClickEffect(CImage* InImage)
 	{
 		for (int x = m_Pos.x - fExtRadius; x < m_Pos.x + fExtRadius; ++x)
 		{
+			if (y < 0 || y >= nHeight || x < 0 || x >= nWidth)
+				continue;
+
 			if (y < m_Pos.y - fExtRadius + 5 || y >= m_Pos.y + fExtRadius - 5 ||
 				x < m_Pos.x - fExtRadius + 5 || x >= m_Pos.x + fExtRadius - 5)
 			{
