@@ -10,6 +10,7 @@ public:
     CCircle(CVector2 CenterPos, float fRadius);
 
     bool IsOverlapped(const CVector2& MousePos);
+    float GetRadius() const { return m_fRadius; }
 
 public:
     virtual std::wstring GetName() const;

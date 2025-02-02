@@ -80,6 +80,9 @@ BEGIN_MESSAGE_MAP(CMFCStudyDlg, CDialogEx)
 	ON_WM_MOUSEMOVE()
 	ON_WM_LBUTTONDOWN()
 	ON_WM_LBUTTONUP()
+	ON_BN_CLICKED(IDC_RADIO_BAZIER, &CMFCStudyDlg::OnBnClickedRadioBazier)
+	ON_BN_CLICKED(IDC_RADIO_NSPLINE, &CMFCStudyDlg::OnBnClickedRadioNspline)
+	ON_BN_CLICKED(IDC_RADIO_BSPLINE, &CMFCStudyDlg::OnBnClickedRadioBspline)
 END_MESSAGE_MAP()
 
 
@@ -209,7 +212,10 @@ void CMFCStudyDlg::OnMouseMove(UINT nFlags, CPoint point)
 
 void CMFCStudyDlg::OnLButtonDown(UINT nFlags, CPoint point)
 {
-	m_pShapes->CheckOverlap(CVector2::CPointToVector2(point));
+	CVector2 MousePos = CVector2::CPointToVector2(point);
+	m_pShapes->CheckOverlap(MousePos);
+	m_PrevMousePos = MousePos;
+
 }
 
 void CMFCStudyDlg::OnLButtonUp(UINT nFlags, CPoint point)
@@ -219,10 +225,12 @@ void CMFCStudyDlg::OnLButtonUp(UINT nFlags, CPoint point)
 	{
 		pClickedShape->SetOverlapped(false);
 		m_pShapes->RemoveClickedShape();
+
 		Refresh();
 	}
 
-	if (m_eMode == EClickMode::Move)
+	m_PrevMousePos = CVector2(0.0f, 0.0f);
+	if (m_eMode != EClickMode::Create)
 	{
 		m_eMode = EClickMode::Create;
 		return;
@@ -230,7 +238,13 @@ void CMFCStudyDlg::OnLButtonUp(UINT nFlags, CPoint point)
 
 	if (!IsOverTheLimit(point))
 	{
-		CreateCircle(CVector2::CPointToVector2(point), 6.0f);
+		CVector2 MousePos = CVector2::CPointToVector2(point);
+		CShape* pOverlapShape = m_pShapes->GetOverlapShape(MousePos);
+		if (pOverlapShape)
+			m_pShapes->RemoveShape(pOverlapShape);
+		
+		else
+			CreateCircle(MousePos, THICKNESS);
 	}
 
 	if (m_pShapes->GetShapesCount() >= 2)
@@ -247,7 +261,7 @@ void CMFCStudyDlg::OnLButtonUp(UINT nFlags, CPoint point)
 void CMFCStudyDlg::Initialize()
 {
 	InitDC();
-	InitGridCtrl();
+	InitCtrl();
 	InitImage();
 
 	m_pShapes = new CShapes(&m_Image);
@@ -312,6 +326,12 @@ void CMFCStudyDlg::InitGridCtrl()
 	pGroup->AddSubItem(pCurves);
 
 	pControl->AddProperty(pGroup);
+}
+
+void CMFCStudyDlg::InitCtrl()
+{
+	GetControl<CButton>(IDC_RADIO_BAZIER)->SetCheck(BST_CHECKED);
+	InitGridCtrl();
 }
 
 void CMFCStudyDlg::DrawShapesInBackBuffer()
@@ -419,6 +439,12 @@ void CMFCStudyDlg::RenewGridCtrl()
 	pControl->AddProperty(pGroup);
 }
 
+ECurveType CMFCStudyDlg::GetCurveTypeFromRadioBtn()
+{
+	int nRadioBtnValue = GetCheckedRadioButton(IDC_RADIO_BAZIER, IDC_RADIO_BSPLINE);
+	return static_cast<ECurveType>(nRadioBtnValue - IDC_RADIO_BAZIER);
+}
+
 CCurve* CMFCStudyDlg::CreateCurve(const CVector2& Pos, float fThickness)
 {
 	CShapeInfo ShapeInfo;
@@ -435,21 +461,9 @@ CCurve* CMFCStudyDlg::CreateCurve(const CVector2& Pos, float fThickness)
 	return m_pShapes->AddShape<CCurve>(ShapeInfo);
 }
 
-CCurve* CMFCStudyDlg::RedefineCurve(float fThickness)
+void CMFCStudyDlg::RedefineCurve(float fThickness)
 {
-	CCurve* pCurve = m_pShapes->GetCurve();
-	AssertEx(pCurve != nullptr, _T("CMFCStudyDlg::RedefineCurve(float fThickness) -> Curve가 존재하지 않습니다!"));
-
-	std::vector<CVector2> RedefinePoints;
-	const std::vector<CShape*>& Shapes = m_pShapes->GetShapes();
-	for (int i = 0; i < Shapes.size(); ++i)
-	{
-		if (Shapes[i] != pCurve)
-			RedefinePoints.push_back(Shapes[i]->GetPos());
-	}
-	pCurve->Redefine(RedefinePoints, fThickness);
-
-	return pCurve;
+	m_pShapes->RedefineCurve(fThickness, GetCurveTypeFromRadioBtn());
 }
 
 CCircle* CMFCStudyDlg::CreateCircle(const CVector2& Pos, float fRadius)
@@ -459,4 +473,23 @@ CCircle* CMFCStudyDlg::CreateCircle(const CVector2& Pos, float fRadius)
 	ShapeInfo.fThickness = fRadius;
 	ShapeInfo.eShapeTypes = EShapeTypes::Circle;
 	return m_pShapes->AddShape<CCircle>(ShapeInfo);
+}
+
+
+void CMFCStudyDlg::OnBnClickedRadioBazier()
+{
+	RedefineCurve(THICKNESS);
+	Refresh();
+}
+
+void CMFCStudyDlg::OnBnClickedRadioNspline()
+{
+	RedefineCurve(THICKNESS);
+	Refresh();
+}
+
+void CMFCStudyDlg::OnBnClickedRadioBspline()
+{
+	RedefineCurve(THICKNESS);
+	Refresh();
 }

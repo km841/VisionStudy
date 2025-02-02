@@ -5,6 +5,8 @@
 #include <assert.h>
 #include <algorithm>
 
+#define THICKNESS 6.0f
+
 static void AssertEx(bool bExpression, const std::wstring& Message)
 {
 	if (bExpression)
@@ -13,3 +15,23 @@ static void AssertEx(bool bExpression, const std::wstring& Message)
 	MessageBoxW(NULL, Message.c_str(), L"Assert", MB_OK);
 	assert(bExpression);
 }
+
+enum class EClickMode
+{
+	Create,
+	Move,
+};
+
+enum class EShapeTypes
+{
+	Circle,
+	Curve,
+	Count,
+};
+
+enum class ECurveType
+{
+	Bezier,
+	NSpline,
+	BSpline,
+};

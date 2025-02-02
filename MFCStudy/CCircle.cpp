@@ -10,7 +10,7 @@ CCircle::CCircle(CVector2 CenterPos, float fRadius)
 bool CCircle::IsOverlapped(const CVector2& MousePos)
 {
 	CVector2 Diff = MousePos - m_Pos;
-	float fLen = Diff.Length();
+	double fLen = Diff.Length();
 
 	if (fLen <= m_fRadius)
 		return true;

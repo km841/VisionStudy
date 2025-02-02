@@ -5,12 +5,7 @@
 
 class CShape;
 
-enum class EShapeTypes
-{
-	Circle,
-	Curve,
-	Count,
-};
+
 
 struct CShapeInfo
 {
@@ -30,6 +25,7 @@ public:
 	void Draw();
 	void RegisterShape(CShape* pShape);
 	bool CheckOverlap(CVector2 MousePos);
+	CShape* GetOverlapShape(CVector2 MousePos);
 
 	const std::vector<CShape*>& GetShapes() const { return m_vecShapes; }
 	CShape* GetClickedShape() { return m_pClickedShape; }
@@ -38,7 +34,8 @@ public:
 	int GetShapesCount() { return static_cast<int>(m_vecShapes.size()); }
 	bool IsExistsCurve();
 
-	void RemoveCurve();
+	void RedefineCurve(float fThickness, ECurveType eCurveType);
+	void RemoveShape(CShape* pShape);
 
 	template<typename T>
 	T* AddShape(const CShapeInfo& ShapeInfo);

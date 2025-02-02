@@ -4,14 +4,16 @@
 CCurve::CCurve(const std::vector<CVector2>& ControlPoints, float fThickness)
 	: CShape(ControlPoints[0])
 	, m_fThickness(fThickness)
+	, m_eCurveType(ECurveType::Bezier)
 {
 	m_ControlPoints = ControlPoints;
 }
 
-void CCurve::Redefine(const std::vector<CVector2>& ControlPoints, float fThickness)
+void CCurve::Redefine(const std::vector<CVector2>& ControlPoints, float fThickness, ECurveType eCurveType)
 {
 	m_ControlPoints = ControlPoints;
 	m_fThickness = fThickness;
+	m_eCurveType = eCurveType;
 }
 
 std::wstring CCurve::GetName() const
@@ -20,6 +22,30 @@ std::wstring CCurve::GetName() const
 }
 
 void CCurve::Draw(CImage* InImage)
+{
+	switch (m_eCurveType)
+	{
+	case ECurveType::Bezier:
+		DrawBezierCurve(InImage);
+		break;
+	case ECurveType::NSpline:
+		break;
+	case ECurveType::BSpline:
+		break;
+	}
+}
+
+bool CCurve::Save(const std::wstring& FileName)
+{
+	return false;
+}
+
+bool CCurve::Load(const std::wstring& FileName)
+{
+	return false;
+}
+
+void CCurve::DrawBezierCurve(CImage* InImage)
 {
 	for (float t = 0.0f; t < 1.0f; t += 0.001f)
 	{
@@ -50,16 +76,6 @@ void CCurve::Draw(CImage* InImage)
 		}
 
 	}
-}
-
-bool CCurve::Save(const std::wstring& FileName)
-{
-	return false;
-}
-
-bool CCurve::Load(const std::wstring& FileName)
-{
-	return false;
 }
 
 CVector2 CCurve::DeCasteljau(float fWeight)

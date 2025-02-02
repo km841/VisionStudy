@@ -4,14 +4,6 @@ class CShapes;
 class CCurve;
 class CCircle;
 
-#define THICKNESS 6.0f
-
-enum class EClickMode
-{
-	Create,
-	Move,
-};
-
 class CMFCStudyDlg : public CDialogEx
 {
 // 생성입니다.
@@ -43,6 +35,7 @@ protected:
 	void InitImage();
 	void InitDC();
 	void InitGridCtrl();
+	void InitCtrl();
 
 	void DrawShapesInBackBuffer();
 	void DrawBackBuffer();
@@ -54,9 +47,11 @@ protected:
 
 	void ClearImage();
 	void RenewGridCtrl();
+	
+	ECurveType GetCurveTypeFromRadioBtn();
 
 	CCurve* CreateCurve(const CVector2& Pos, float fThickness);
-	CCurve* RedefineCurve(float fThickness);
+	void RedefineCurve(float fThickness);
 	CCircle* CreateCircle(const CVector2& Pos, float fRadius);
 
 	template<typename T>
@@ -74,11 +69,15 @@ public:
 
 	// Helper Classes
 	CVector2 m_MousePos;
+	CVector2 m_PrevMousePos;
 	CShapes* m_pShapes;
 
 	// bool & Enum
 	bool m_bInitialized;
 	EClickMode m_eMode;
+	afx_msg void OnBnClickedRadioBazier();
+	afx_msg void OnBnClickedRadioNspline();
+	afx_msg void OnBnClickedRadioBspline();
 };
 
 template<typename T>

@@ -13,7 +13,6 @@
 #define IDC_RADIO_BSPLINE               1003
 #define IDC_BUTTON_RANDOM               1004
 #define IDC_BUTTON_CURVESAVE            1005
-#define IDC_BUTTON_SPLINELOAD           1006
 #define IDC_BUTTON_CURVELOAD            1006
 
 // Next default values for new objects
