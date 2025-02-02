@@ -53,6 +53,6 @@
 - 점 이동 시 이미지 영역을 벗어나는 좌표를 입력하게 되면 예외 처리 (자동으로 이미지 끝 좌표로 변환)</br>
 ![image](https://github.com/user-attachments/assets/725427d6-d5e6-44c7-8b1f-4ad5d92f316d)</br>
 - Property Name 클릭 시 해당되는 실제 점(Circle)에 검정색 테두리를 그리도록 하여 어떤 점이 클릭되었는지 구별 가능하도록 구현</br>
-![image](https://github.com/user-attachments/assets/ce028ca2-7551-4052-9de5-50942c336467)</br>
+![image](https://github.com/user-attachments/assets/448f6a6c-5c4b-4538-ac90-77dd7871d69c)</br>
 - Grid Property 클릭 이벤트 내부에서 어떤 Shape가 클릭되었다는 것을 알리고 실시간 반영하기 위해 MFC에서 제공하는 CMFCPropertyGridProperty 클래스를 상속받아 CHmGridProperty 클래스를 구현한 후 OnClickName(CPoint) 함수 오버라이딩</br>
 ![bandicam2025-02-0304-06-59-104-ezgif com-video-to-gif-converter](https://github.com/user-attachments/assets/191f0dce-341f-4b10-b8d5-c5b39cec4b34)</br>
