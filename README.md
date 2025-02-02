@@ -33,3 +33,17 @@
 - CShapes::Draw(...) 함수에서는 점이 커브에 가리지 않도록 그리는 순서를 변경</br>
 ![image](https://github.com/user-attachments/assets/904758dc-f84c-4cc2-aeaa-6e2659b7f540)</br>
 ![ezgif com-video-to-gif-converter](https://github.com/user-attachments/assets/61f0fc2e-b672-4e54-8cd6-c98f388a2568)</br>
+
+## 2025년 02월 02일</br>
+### 19:33
+- 점(Circle) 클릭 시 삭제 기능 구현</br>
+- CMFCStudyDlg::OnLButtonUP(...) 함수 내에서, 해당 좌표에 Circle이 존재하는지 확인 후, 있으면 삭제하고 없으면 생성</br>
+- Q1. 그럼 드래그로 점을 끌어다가 다른 점과 좌표가 겹치는 곳에 두면 그 점은 삭제되나요?</br>
+- A1. 만약 드래그를 시도했다면 CMFCStudyDlg::OnMouseMove(...)함수에서 내부 enum 값이 Move로 변경되고, Move라면 해당 분기로 오기 전에 함수가 리턴됩니다.</br>
+![image](https://github.com/user-attachments/assets/66d0cad5-ffb2-4026-a33b-1d094a0d838e)</br>
+- 라디오 버튼을 통해 CurveType을 선택할 수 있도록 구현</br>
+- 현재 Bezier 외에 자연스플라인, B스플라인은 미구현</br>
+![image](https://github.com/user-attachments/assets/1232b947-aab5-4ef5-bde5-6862932068c9)</br>
+- 2/4 내에 구현 예정</br>
+![bandicam2025-02-0219-31-19-254-ezgif com-video-to-gif-converter](https://github.com/user-attachments/assets/530e3ce3-1dae-4866-863d-6ee56da97998)</br>
+
