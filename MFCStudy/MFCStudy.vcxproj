@@ -185,6 +185,7 @@
   <ItemGroup>
     <ClInclude Include="CCircle.h" />
     <ClInclude Include="CCurve.h" />
+    <ClInclude Include="CHmGridProperty.h" />
     <ClInclude Include="Common.h" />
     <ClInclude Include="CShape.h" />
     <ClInclude Include="framework.h" />
@@ -199,6 +200,7 @@
   <ItemGroup>
     <ClCompile Include="CCircle.cpp" />
     <ClCompile Include="CCurve.cpp" />
+    <ClCompile Include="CHmGridProperty.cpp" />
     <ClCompile Include="CShape.cpp" />
     <ClCompile Include="MFCStudy.cpp" />
     <ClCompile Include="MFCStudyDlg.cpp" />

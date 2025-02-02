@@ -2,7 +2,7 @@
 #include "CCurve.h"
 
 CCurve::CCurve(const std::vector<CVector2>& ControlPoints, float fThickness)
-	: CShape(ControlPoints[0])
+	: CShape(CVector2(0.0f, 0.0f), EShapeType::Curve)
 	, m_fThickness(fThickness)
 	, m_eCurveType(ECurveType::Bezier)
 {
@@ -18,7 +18,7 @@ void CCurve::Redefine(const std::vector<CVector2>& ControlPoints, float fThickne
 
 std::wstring CCurve::GetName() const
 {
-	return TEXT("Curve");
+	return _T("Curve") + std::to_wstring(m_ID);
 }
 
 void CCurve::Draw(CImage* InImage)

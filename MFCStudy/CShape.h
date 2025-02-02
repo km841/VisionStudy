@@ -3,11 +3,7 @@
 class CShape
 {
 public:
-	CShape(const CVector2& Pos)
-		: m_Pos(Pos)
-		, m_bIsOverlapped(false)
-	{}
-
+	CShape(const CVector2& Pos, EShapeType eShapeType);
 	virtual ~CShape() {}
 
 public:
@@ -18,12 +14,16 @@ public:
 	virtual bool Load(const std::wstring& FileName) = 0;
 
 public:
+	UINT64 GetID() const { return m_ID; }
 	CVector2 GetPos() const { return m_Pos; }
 	void SetPos(const CVector2& Pos) { m_Pos = Pos; }
 	void SetOverlapped(bool bOverlapped) { m_bIsOverlapped = bOverlapped; }
+	EShapeType GetShapeType() const { return m_eShapeType; }
 
 protected:
 	CVector2 m_Pos;
 	bool m_bIsOverlapped;
+	EShapeType m_eShapeType;
+	UINT64 m_ID;
 };
 

@@ -2,7 +2,7 @@
 #include "CCircle.h"
 
 CCircle::CCircle(CVector2 CenterPos, float fRadius)
-    : CShape(CenterPos)
+	: CShape(CenterPos, EShapeType::Circle)
 	, m_fRadius(fRadius)
 {
 }
@@ -18,9 +18,31 @@ bool CCircle::IsOverlapped(const CVector2& MousePos)
 		return false;
 }
 
+void CCircle::GridCtrlClickEffect(CImage* InImage)
+{
+	unsigned char* p = (unsigned char*)InImage->GetBits();
+	int nPitch = InImage->GetPitch();
+
+	int nWidth = InImage->GetWidth();
+	int nHeight = InImage->GetHeight();
+	float fExtRadius = m_fRadius + 10;
+
+	for (int y = m_Pos.y - fExtRadius; y < m_Pos.y + fExtRadius; ++y)
+	{
+		for (int x = m_Pos.x - fExtRadius; x < m_Pos.x + fExtRadius; ++x)
+		{
+			if (y < m_Pos.y - fExtRadius + 5 || y >= m_Pos.y + fExtRadius - 5 ||
+				x < m_Pos.x - fExtRadius + 5 || x >= m_Pos.x + fExtRadius - 5)
+			{
+				p[y * nPitch + x] = 0x00;
+			}
+		}
+	}
+}
+
 std::wstring CCircle::GetName() const
 {
-	return TEXT("Circle");
+	return _T("Circle") + std::to_wstring(m_ID);
 }
 
 void CCircle::Draw(CImage* InImage)

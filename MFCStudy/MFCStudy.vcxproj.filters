@@ -21,6 +21,9 @@
     <Filter Include="소스 파일\Util">
       <UniqueIdentifier>{0ad0fb04-630b-4f1d-947a-67103548b3ed}</UniqueIdentifier>
     </Filter>
+    <Filter Include="소스 파일\Control">
+      <UniqueIdentifier>{af7fdd3b-30e5-4222-9692-9b6a597ffa6e}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="framework.h">
@@ -59,6 +62,9 @@
     <ClInclude Include="Common.h">
       <Filter>소스 파일\Util</Filter>
     </ClInclude>
+    <ClInclude Include="CHmGridProperty.h">
+      <Filter>소스 파일\Control</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">
@@ -81,6 +87,9 @@
     </ClCompile>
     <ClCompile Include="MFCStudyDlg.cpp">
       <Filter>소스 파일\Client</Filter>
+    </ClCompile>
+    <ClCompile Include="CHmGridProperty.cpp">
+      <Filter>소스 파일\Control</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

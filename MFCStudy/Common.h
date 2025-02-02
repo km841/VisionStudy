@@ -22,8 +22,9 @@ enum class EClickMode
 	Move,
 };
 
-enum class EShapeTypes
+enum class EShapeType
 {
+	None,
 	Circle,
 	Curve,
 	Count,
@@ -34,4 +35,10 @@ enum class ECurveType
 	Bezier,
 	NSpline,
 	BSpline,
+};
+
+enum class EGridPropertyType
+{
+	Group,
+	Single,
 };

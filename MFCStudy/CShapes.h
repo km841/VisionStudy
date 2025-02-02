@@ -12,7 +12,7 @@ struct CShapeInfo
 	CVector2 Pos;
 	float fThickness;
 	std::vector<CVector2> ControlPoints;
-	EShapeTypes eShapeTypes;
+	EShapeType eShapeTypes;
 };
 
 class CShapes
@@ -36,6 +36,9 @@ public:
 
 	void RedefineCurve(float fThickness, ECurveType eCurveType);
 	void RemoveShape(CShape* pShape);
+	CShape* FindShape(const std::wstring& strShapeName);
+
+	void SetGridCtrlClickShape(CCircle* pShape) { m_pGridCtrlClickShape = pShape; }
 
 	template<typename T>
 	T* AddShape(const CShapeInfo& ShapeInfo);
@@ -48,22 +51,23 @@ private:
 	CImage* m_Image;
 	CCurve* m_pCurve;
 	CShape* m_pClickedShape;
+	CCircle* m_pGridCtrlClickShape;
 	std::vector<CShape*> m_vecShapes;
 };
 
 template<typename T>
 inline T* CShapes::AddShape(const CShapeInfo& ShapeInfo)
 {
-	EShapeTypes ShapeTypes = ShapeInfo.eShapeTypes;
+	EShapeType ShapeTypes = ShapeInfo.eShapeTypes;
 	CShape* pShape = nullptr;
 	
 	switch (ShapeTypes)
 	{
-	case EShapeTypes::Circle:
+	case EShapeType::Circle:
 		pShape = CreateCircle(ShapeInfo.Pos, ShapeInfo.fThickness);
 		break;
 
-	case EShapeTypes::Curve:
+	case EShapeType::Curve:
 		pShape = CreateCurve(ShapeInfo.ControlPoints, ShapeInfo.fThickness);
 		m_pCurve = static_cast<CCurve*>(pShape);
 		break;

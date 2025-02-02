@@ -1,6 +1,7 @@
 #pragma once
 #include <string>
 #include <sstream>
+#include <assert.h>
 
 struct CVector2
 {
@@ -14,6 +15,22 @@ struct CVector2
 	CVector2()
 		: x(0.0f), y(0.0f)
 	{}
+
+	CVector2(const CString& XY)
+	{
+		int commaPos = XY.Find(_T(","));
+		if (commaPos == -1)
+		{
+			MessageBoxA(0, "CVector2(const CString& XY) 실패!", "Error", MB_OK);
+			assert(false);
+		}
+
+		CString xStr = XY.Left(commaPos);
+		CString yStr = XY.Mid(commaPos + 1); 
+
+		x = static_cast<float>(_ttof(xStr)); 
+		y = static_cast<float>(_ttof(yStr));
+	}
 
 	std::wstring ToString()
 	{

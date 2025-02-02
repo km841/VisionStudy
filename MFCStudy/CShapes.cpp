@@ -5,6 +5,7 @@ CShapes::CShapes(CImage* InImage)
 	: m_Image(InImage)
 	, m_pClickedShape(nullptr)
 	, m_pCurve(nullptr)
+	, m_pGridCtrlClickShape(nullptr)
 {
 }
 
@@ -30,7 +31,13 @@ void CShapes::Draw()
 	for (int i = 0; i < m_vecShapes.size(); ++i)
 	{
 		if (m_vecShapes[i] != m_pCurve)
+		{
 			m_vecShapes[i]->Draw(m_Image);
+
+			if (m_pGridCtrlClickShape)
+				m_pGridCtrlClickShape->GridCtrlClickEffect(m_Image);
+		}
+
 	}
 }
 
@@ -96,6 +103,12 @@ void CShapes::RemoveShape(CShape* pShape)
 	if (m_pCurve == pShape)
 		m_pCurve = nullptr;
 
+	if (m_pGridCtrlClickShape == pShape)
+		m_pGridCtrlClickShape = nullptr;
+
+	if (m_pClickedShape == pShape)
+		m_pClickedShape = nullptr;
+
 	std::vector<CShape*>::iterator Iter = m_vecShapes.begin();
 	for (; Iter != m_vecShapes.end(); ++Iter)
 	{
@@ -106,6 +119,18 @@ void CShapes::RemoveShape(CShape* pShape)
 			break;
 		}
 	}
+}
+
+CShape* CShapes::FindShape(const std::wstring& strShapeName)
+{
+	for (int i = 0; i < m_vecShapes.size(); ++i)
+	{
+		std::wstring Name = m_vecShapes[i]->GetName();
+		if (strShapeName == Name)
+			return m_vecShapes[i];
+	}
+
+	return nullptr;
 }
 
 CCircle* CShapes::CreateCircle(CVector2 CenterPos, float fRadius)

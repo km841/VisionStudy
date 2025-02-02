@@ -26,10 +26,15 @@ protected:
 	afx_msg void OnSysCommand(UINT nID, LPARAM lParam);
 	afx_msg void OnPaint();
 	afx_msg HCURSOR OnQueryDragIcon();
+	afx_msg LRESULT OnPropertyChanged(WPARAM wParam, LPARAM lParam);
 
 	afx_msg void OnMouseMove(UINT nFlags, CPoint point);
 	afx_msg void OnLButtonDown(UINT nFlags, CPoint point);
 	afx_msg void OnLButtonUp(UINT nFlags, CPoint point);
+
+	afx_msg void OnBnClickedRadioBazier();
+	afx_msg void OnBnClickedRadioNspline();
+	afx_msg void OnBnClickedRadioBspline();
 
 	void Initialize();
 	void InitImage();
@@ -41,7 +46,6 @@ protected:
 	void DrawBackBuffer();
 	void DrawMainBuffer();
 	void DrawScreen();
-	void Refresh();
 
 	bool IsOverTheLimit(CPoint Point);
 
@@ -58,6 +62,11 @@ protected:
 	T* GetControl(int nID);
 
 	DECLARE_MESSAGE_MAP()
+
+public:
+	CShapes* GetShapes() const { return m_pShapes; }
+	void Refresh();
+
 public:
 	HICON m_hIcon;
 	CImage m_Image;
@@ -75,9 +84,6 @@ public:
 	// bool & Enum
 	bool m_bInitialized;
 	EClickMode m_eMode;
-	afx_msg void OnBnClickedRadioBazier();
-	afx_msg void OnBnClickedRadioNspline();
-	afx_msg void OnBnClickedRadioBspline();
 };
 
 template<typename T>

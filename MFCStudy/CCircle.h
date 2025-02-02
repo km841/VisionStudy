@@ -11,6 +11,7 @@ public:
 
     bool IsOverlapped(const CVector2& MousePos);
     float GetRadius() const { return m_fRadius; }
+    void GridCtrlClickEffect(CImage* InImage);
 
 public:
     virtual std::wstring GetName() const;

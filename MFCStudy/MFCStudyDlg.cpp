@@ -9,6 +9,7 @@
 #include "afxdialogex.h"
 #include "afxpropertygridctrl.h"
 #include "CShapes.h"
+#include "CHmGridProperty.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -83,6 +84,7 @@ BEGIN_MESSAGE_MAP(CMFCStudyDlg, CDialogEx)
 	ON_BN_CLICKED(IDC_RADIO_BAZIER, &CMFCStudyDlg::OnBnClickedRadioBazier)
 	ON_BN_CLICKED(IDC_RADIO_NSPLINE, &CMFCStudyDlg::OnBnClickedRadioNspline)
 	ON_BN_CLICKED(IDC_RADIO_BSPLINE, &CMFCStudyDlg::OnBnClickedRadioBspline)
+	ON_REGISTERED_MESSAGE(AFX_WM_PROPERTY_CHANGED, &CMFCStudyDlg::OnPropertyChanged)
 END_MESSAGE_MAP()
 
 
@@ -178,6 +180,42 @@ void CMFCStudyDlg::OnPaint()
 HCURSOR CMFCStudyDlg::OnQueryDragIcon()
 {
 	return static_cast<HCURSOR>(m_hIcon);
+}
+
+LRESULT CMFCStudyDlg::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
+{
+	CHmGridProperty* pProp = reinterpret_cast<CHmGridProperty*>(lParam);
+	AssertEx(pProp != nullptr, _T("CMFCStudyDlg::OnPropertyChanged(WPARAM wParam, LPARAM lParam) -> GridCtrl이 nullptr입니다!"));
+
+	CString PropName = pProp->GetName();
+	std::wstring Name(PropName);
+
+	CShape* pShape = m_pShapes->FindShape(Name);
+	if (pShape)
+	{
+		CVector2 V = pProp->GetValue();
+
+		auto pControl = GetControl<CMFCPropertyGridCtrl>(IDC_GRIDPROPERTY);
+		CRect ControlRect;
+		pControl->GetWindowRect(&ControlRect);
+		ScreenToClient(&ControlRect);
+
+		CRect ClientRect;
+		GetClientRect(ClientRect);
+		{
+			V.x = min(ControlRect.left, V.x);
+			V.x = max(0, V.x);
+			V.y = min(ClientRect.bottom, V.y);
+			V.y = max(0, V.y);
+		}
+
+		pShape->SetPos(V);
+	}
+
+	if (m_pShapes->IsExistsCurve())
+		RedefineCurve(THICKNESS);
+	Refresh();
+	return 0;
 }
 
 void CMFCStudyDlg::OnMouseMove(UINT nFlags, CPoint point)
@@ -317,10 +355,10 @@ void CMFCStudyDlg::InitGridCtrl()
 	auto pControl = GetControl<CMFCPropertyGridCtrl>(IDC_GRIDPROPERTY);
 	pControl->GetHeaderCtrl().SetItem(0, &Item);
 
-	CMFCPropertyGridProperty* pGroup = new CMFCPropertyGridProperty(_T("Shapes"));
+	CHmGridProperty* pGroup = new CHmGridProperty(_T("Shapes"));
 
-	CMFCPropertyGridProperty* pCircles = new CMFCPropertyGridProperty(_T("Circles"));
-	CMFCPropertyGridProperty* pCurves = new CMFCPropertyGridProperty(_T("Curves"));
+	CHmGridProperty* pCircles = new CHmGridProperty(_T("Circles"));
+	CHmGridProperty* pCurves = new CHmGridProperty(_T("Curves"));
 
 	pGroup->AddSubItem(pCircles);
 	pGroup->AddSubItem(pCurves);
@@ -400,13 +438,13 @@ void CMFCStudyDlg::RenewGridCtrl()
 	auto Shapes = m_pShapes->GetShapes();
 
 	pControl->RemoveAll();
-	CMFCPropertyGridProperty* pGroup = new CMFCPropertyGridProperty(_T("Shapes"));
+	CHmGridProperty* pGroup = new CHmGridProperty(_T("Shapes"));
 
 	std::vector<CShape*> Circles;
 	std::vector<CShape*> Curves;
 
-	CMFCPropertyGridProperty* pCircles = new CMFCPropertyGridProperty(_T("Circles"));
-	CMFCPropertyGridProperty* pCurves = new CMFCPropertyGridProperty(_T("Curves"));
+	CHmGridProperty* pCircles = new CHmGridProperty(_T("Circles"));
+	CHmGridProperty* pCurves = new CHmGridProperty(_T("Curves"));
 
 	pGroup->AddSubItem(pCircles);
 	pGroup->AddSubItem(pCurves);
@@ -421,17 +459,17 @@ void CMFCStudyDlg::RenewGridCtrl()
 
 		std::wstring PropertyName;
 		{
-			std::wstring Name = Shapes[i]->GetName();
-
-			if (Name == _T("Circle"))
+			EShapeType eShapeType = Shapes[i]->GetShapeType();
+			UINT64 ShapeID = Shapes[i]->GetID();
+			if (eShapeType == EShapeType::Circle)
 			{
-				PropertyName = Name + std::to_wstring(nCircleCount++);
-				pCircles->AddSubItem(new CMFCPropertyGridProperty(PropertyName.c_str(), OutputStr.c_str()));
+				PropertyName = _T("Circle") + std::to_wstring(ShapeID);
+				pCircles->AddSubItem(new CHmGridProperty(PropertyName.c_str(), OutputStr.c_str(), this));
 			}
-			else if (Name == _T("Curve"))
+			else if (eShapeType == EShapeType::Curve)
 			{
-				PropertyName = Name + std::to_wstring(nCurveCount++);
-				pCurves->AddSubItem(new CMFCPropertyGridProperty(PropertyName.c_str(), OutputStr.c_str()));
+				PropertyName = _T("Curve") + std::to_wstring(ShapeID);
+				pCurves->AddSubItem(new CHmGridProperty(PropertyName.c_str(), OutputStr.c_str(), this));
 			}
 		}
 	}
@@ -450,7 +488,7 @@ CCurve* CMFCStudyDlg::CreateCurve(const CVector2& Pos, float fThickness)
 	CShapeInfo ShapeInfo;
 	ShapeInfo.Pos = Pos;
 	ShapeInfo.fThickness = fThickness;
-	ShapeInfo.eShapeTypes = EShapeTypes::Curve;
+	ShapeInfo.eShapeTypes = EShapeType::Curve;
 
 	const std::vector<CShape*>& Shapes = m_pShapes->GetShapes();
 	for (int i = 0; i < Shapes.size(); ++i)
@@ -471,7 +509,7 @@ CCircle* CMFCStudyDlg::CreateCircle(const CVector2& Pos, float fRadius)
 	CShapeInfo ShapeInfo;
 	ShapeInfo.Pos = Pos;
 	ShapeInfo.fThickness = fRadius;
-	ShapeInfo.eShapeTypes = EShapeTypes::Circle;
+	ShapeInfo.eShapeTypes = EShapeType::Circle;
 	return m_pShapes->AddShape<CCircle>(ShapeInfo);
 }
 
